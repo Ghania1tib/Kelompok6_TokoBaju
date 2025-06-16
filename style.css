@@ -1,0 +1,403 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --primary-color: #4CAF50; /* Hijau */
+    --secondary-color: #2196F3; /* Biru */
+    --background-color: #f4f7f6;
+    --card-background: #ffffff;
+    --text-color: #333;
+    --border-color: #e0e0e0;
+    --sidebar-width: 250px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+    width: var(--sidebar-width);
+    background-color: #2c3e50; /* Darker blue-grey */
+    color: #ecf0f1; /* Light grey */
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    transition: width 0.3s ease;
+    z-index: 100; /* Pastikan sidebar di atas konten lain saat collapse */
+}
+
+.sidebar.collapsed {
+    width: 60px;
+}
+
+.sidebar-header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.sidebar-header h3 {
+    font-size: 1.8rem;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sidebar.collapsed .sidebar-header h3 {
+    display: none;
+}
+
+.sidebar-menu {
+    list-style: none;
+    flex-grow: 1;
+}
+
+.sidebar-menu li {
+    margin-bottom: 10px;
+}
+
+.sidebar-menu a {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    color: #ecf0f1;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    white-space: nowrap; /* Mencegah teks menu melipat */
+}
+
+.sidebar-menu a i {
+    margin-right: 15px;
+    font-size: 1.2rem;
+}
+
+.sidebar.collapsed .sidebar-menu a span {
+    display: none;
+}
+
+.sidebar.collapsed .sidebar-menu a i {
+    margin-right: 0;
+    justify-content: center; /* Pusatkan ikon saat collapsed */
+    width: 100%;
+}
+
+.sidebar-menu a:hover,
+.sidebar-menu a.active {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* Main Content */
+.main-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--background-color);
+    transition: margin-left 0.3s ease; /* Transisi untuk pergeseran saat sidebar toggle */
+}
+
+/* Navbar */
+.navbar {
+    background-color: var(--card-background);
+    padding: 20px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    z-index: 99; /* Di bawah sidebar */
+}
+
+.navbar h2 {
+    font-size: 1.5rem;
+    color: var(--text-color);
+}
+
+.sidebar-toggle {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--text-color);
+    cursor: pointer;
+    margin-right: 20px;
+    transition: color 0.3s ease;
+}
+
+.sidebar-toggle:hover {
+    color: var(--primary-color);
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+}
+
+.user-info span {
+    margin-right: 10px;
+    font-weight: 500;
+}
+
+.user-info img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--primary-color);
+}
+
+/* Dashboard Sections */
+.dashboard-sections {
+    padding: 30px;
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+.dashboard-section {
+    display: none; /* Hidden by default */
+    background-color: var(--card-background);
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    margin-bottom: 20px;
+}
+
+.dashboard-section.active {
+    display: block; /* Show active section */
+}
+
+.dashboard-section h3 {
+    font-size: 1.8rem;
+    margin-bottom: 25px;
+    color: var(--primary-color);
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 10px;
+}
+
+/* Cards for Overview */
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.card {
+    background-color: #fff;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+    text-align: center;
+    transition: transform 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.card h4 {
+    font-size: 1.1rem;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.card p {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+/* Table Styles */
+.table-container {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+}
+
+table th, table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+table th {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+}
+
+table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+table tr:hover {
+    background-color: #f1f1f1;
+}
+
+.status-pending {
+    background-color: #FFC107; /* Kuning */
+    color: #333;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.status-completed {
+    background-color: #28A745; /* Hijau */
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+/* Buttons */
+.add-button, .edit-button, .delete-button, .view-button, .update-button, .save-button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-right: 5px;
+    margin-bottom: 10px;
+    text-decoration: none; /* Untuk tag <a> yang dijadikan tombol */
+}
+
+.add-button:hover, .save-button:hover {
+    background-color: #45a049;
+}
+
+.edit-button {
+    background-color: var(--secondary-color);
+}
+.edit-button:hover {
+    background-color: #1a7bbd;
+}
+
+.delete-button {
+    background-color: #DC3545; /* Merah */
+}
+.delete-button:hover {
+    background-color: #c82333;
+}
+
+.view-button {
+    background-color: #6C757D; /* Abu-abu */
+}
+.view-button:hover {
+    background-color: #5a6268;
+}
+
+.update-button {
+    background-color: #17A2B8; /* Biru muda */
+}
+.update-button:hover {
+    background-color: #138496;
+}
+
+/* Form Styles */
+.settings-form .form-group {
+    margin-bottom: 15px;
+}
+
+.settings-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+.settings-form input[type="text"],
+.settings-form input[type="email"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+.settings-form .save-button {
+    margin-top: 20px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 60px;
+        position: fixed; /* Ubah menjadi fixed untuk overlay */
+        height: 100%;
+        left: -60px; /* Sembunyikan di luar layar */
+        z-index: 1000;
+        transition: left 0.3s ease;
+    }
+
+    .sidebar.open {
+        left: 0; /* Tampilkan saat terbuka */
+    }
+
+    .sidebar .sidebar-header h3,
+    .sidebar-menu a span {
+        display: none;
+    }
+    .sidebar-menu a i {
+        margin-right: 0;
+        justify-content: center;
+        width: 100%;
+    }
+    .sidebar-menu a {
+        justify-content: center;
+    }
+
+    .main-content {
+        margin-left: 0; /* Tidak ada margin tetap di mobile */
+        width: 100%;
+    }
+
+    .navbar {
+        padding: 15px 20px;
+    }
+
+    .sidebar-toggle {
+        display: block; /* Tampilkan tombol toggle */
+    }
+
+    .user-info {
+        display: none; /* Sembunyikan info user di layar kecil */
+    }
+
+    .dashboard-sections {
+        padding: 20px;
+    }
+
+    .cards {
+        grid-template-columns: 1fr; /* Tumpuk kartu secara vertikal */
+    }
+}
