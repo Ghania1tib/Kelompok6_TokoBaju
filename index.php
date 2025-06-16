@@ -44,14 +44,12 @@
 <body>
     <div class="sidebar">
         <div class="sidebar-header">
-            <h3>Admin Toko Baju</h3>
+            <h3>Dashboard</h3>
         </div>
         <ul class="sidebar-menu">
             <li><a href="index.php?section=overview" class="<?php echo ($currentSection == 'overview' ? 'active' : ''); ?>" data-section="overview"><i class="fas fa-tachometer-alt"></i> <span>Overview</span></a></li>
             <li><a href="index.php?section=products" class="<?php echo ($currentSection == 'products' ? 'active' : ''); ?>" data-section="products"><i class="fas fa-tshirt"></i> <span>Produk</span></a></li>
             <li><a href="index.php?section=categories" class="<?php echo ($currentSection == 'categories' ? 'active' : ''); ?>" data-section="categories"><i class="fas fa-tags"></i> <span>Kategori</span></a></li>
-            <li><a href="index.php?section=settings" class="<?php echo ($currentSection == 'settings' ? 'active' : ''); ?>" data-section="settings"><i class="fas fa-cogs"></i> <span>Pengaturan</span></a></li>
-            <li><a href="#" data-section="logout"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a></li>
         </ul>
     </div>
 
@@ -59,10 +57,6 @@
         <header class="navbar">
             <button class="sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
             <h2>Selamat Datang, Admin!</h2>
-            <div class="user-info">
-                <span>Nama Admin</span>
-                <img src="https://via.placeholder.com/40" alt="User Avatar">
-            </div>
         </header>
 
         <div class="dashboard-sections">
@@ -125,8 +119,8 @@
                                 <td><?php echo $data_produk['detail'] ?></td>
                                 <td><?php echo $data_produk['stok_produk'] ?></td>
                                 <td>
-                                    <a href="edit.php?id=<?php echo $data_produk['id']?>" class="edit-button"><i class="fas fa-edit"></i> Edit</a>
-                                    <a href="hapus.php?id=<?php echo $data_produk['id']?>" class="delete-button" onclick="return confirm('Yakin ingin menghapus?')"><i class="fas fa-trash"></i> Hapus</a>
+                                    <a href="editProduk.php?id=<?php echo $data_produk['id']?>" class="edit-button"><i class="fas fa-edit"></i> Edit</a>
+                                    <a href="hapusProduk.php?id=<?php echo $data_produk['id']?>" class="delete-button" onclick="return confirm('Yakin ingin menghapus?')"><i class="fas fa-trash"></i> Hapus</a>
                                 </td>
                             </tr>
                             <?php

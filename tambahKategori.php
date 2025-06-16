@@ -18,14 +18,12 @@
 <body>
     <div class="sidebar collapsed">
         <div class="sidebar-header">
-            <h3>Admin Toko Baju</h3>
+            <h3>Dashboard</h3>
         </div>
         <ul class="sidebar-menu">
             <li><a href="index.php?section=overview"><i class="fas fa-tachometer-alt"></i> <span>Overview</span></a></li>
             <li><a href="index.php?section=products"><i class="fas fa-tshirt"></i> <span>Produk</span></a></li>
             <li class="active"><a href="index.php?section=categories"><i class="fas fa-tags"></i> <span>Kategori</span></a></li>
-            <li><a href="index.php?section=settings"><i class="fas fa-cogs"></i> <span>Pengaturan</span></a></li>
-            <li><a href="#" data-section="logout"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a></li>
         </ul>
     </div>
 
@@ -33,10 +31,6 @@
         <header class="navbar">
             <button class="sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
             <h2>Tambah Kategori</h2>
-            <div class="user-info">
-                <span>Nama Admin</span>
-                <img src="https://via.placeholder.com/40" alt="User Avatar">
-            </div>
         </header>
 
         <div class="dashboard-sections">

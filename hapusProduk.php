@@ -3,7 +3,7 @@
 
     $id = $_GET['id'];
 
-    $query = "DELETE FROM kategori WHERE ID = '$id'";
+    $query = "DELETE FROM produk WHERE ID = '$id'";
 
     if (mysqli_query($koneksi, $query)) {
         header("Location: index.php");

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 16, 2025 at 02:04 AM
+-- Generation Time: Jun 16, 2025 at 11:44 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -37,10 +37,10 @@ CREATE TABLE `kategori` (
 --
 
 INSERT INTO `kategori` (`id`, `kategori`) VALUES
-(1, 'Baju'),
 (2, 'Celana'),
 (3, 'Rok'),
-(4, 'Hijab');
+(4, 'Hijab'),
+(7, 'Baju');
 
 -- --------------------------------------------------------
 
@@ -57,6 +57,13 @@ CREATE TABLE `produk` (
   `detail` text DEFAULT NULL,
   `stok_produk` enum('habis','tersedia') DEFAULT 'tersedia'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `produk`
+--
+
+INSERT INTO `produk` (`id`, `kategori_id`, `nama`, `harga`, `foto`, `detail`, `stok_produk`) VALUES
+(2, 7, 'Kemeja Hitam Polos', 250000, NULL, 'Warna: Hitam pekat\r\nModel: Polos (tanpa motif atau ornamen)\r\nBahan: Umumnya katun, linen, atau campuran poliester, menawarkan kenyamanan dan sirkulasi udara yang baik.\r\n', 'tersedia');
 
 --
 -- Indexes for dumped tables
@@ -84,13 +91,13 @@ ALTER TABLE `produk`
 -- AUTO_INCREMENT for table `kategori`
 --
 ALTER TABLE `kategori`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `produk`
 --
 ALTER TABLE `produk`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- Constraints for dumped tables
