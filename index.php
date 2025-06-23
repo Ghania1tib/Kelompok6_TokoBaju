@@ -94,10 +94,7 @@
             <li><a href="index.php?section=products" class="<?php echo ($currentSection == 'products' ? 'active' : ''); ?>" data-section="products"><i class="fas fa-tshirt"></i> <span>Produk</span></a></li>
             <li><a href="index.php?section=categories" class="<?php echo ($currentSection == 'categories' ? 'active' : ''); ?>" data-section="categories"><i class="fas fa-tags"></i> <span>Kategori</span></a></li>
             <li><a href="index.php?section=delete-logs" class="<?php echo ($currentSection == 'delete-logs' ? 'active' : ''); ?>" data-section="delete-logs"><i class="fas fa-history"></i> <span>Log Hapus Produk</span></a></li>
-            <li><a href="index.php?section=product-view" class="<?php echo ($currentSection == 'product-view' ? 'active' : ''); ?>" data-section="product-view"><i class="fas fa-eye"></i> <span>Produk Lengkap (VIEW)</span></a></li>
-            <li><a href="index.php?section=product-procedure" class="<?php echo ($currentSection == 'product-procedure' ? 'active' : ''); ?>" data-section="product-procedure"><i class="fas fa-tasks"></i> <span>Produk via SP</span></a></li>
-            <li><a href="index.php?section=settings" class="<?php echo ($currentSection == 'settings' ? 'active' : ''); ?>" data-section="settings"><i class="fas fa-cogs"></i> <span>Pengaturan</span></a></li>
-            <li><a href="#" data-section="logout"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a></li>
+            <li><a href="index.php?section=product-view" class="<?php echo ($currentSection == 'product-view' ? 'active' : ''); ?>" data-section="product-view"><i class="fas fa-eye"></i> <span>View Produk Lengkap</span></a></li>
         </ul>
     </div>
 
