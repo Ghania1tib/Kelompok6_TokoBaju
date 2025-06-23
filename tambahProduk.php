@@ -6,8 +6,16 @@
     ini_set('display_startup_errors', 1);
     error_reporting(E_ALL);
 
-    // Ambil daftar kategori dari database untuk dropdown
-    $kategori_options = mysqli_query($koneksi, "SELECT id, kategori FROM kategori ORDER BY kategori ASC");
+    // Ambil data kategori dari database untuk dropdown
+    $query_kategori = mysqli_query($koneksi, "SELECT id, kategori FROM kategori ORDER BY kategori ASC");
+    $kategori_options_html = "<option value=''>Pilih Kategori</option>";
+    if ($query_kategori && mysqli_num_rows($query_kategori) > 0) {
+        while ($data_kategori = mysqli_fetch_array($query_kategori)) {
+            $kategori_options_html .= "<option value='" . htmlspecialchars($data_kategori['id']) . "'>" . htmlspecialchars($data_kategori['kategori']) . "</option>";
+        }
+    } else {
+        $kategori_options_html = "<option value=''>Tidak ada kategori tersedia</option>";
+    }
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -21,51 +29,47 @@
 <body>
     <div class="sidebar collapsed">
         <div class="sidebar-header">
-            <h3>Dashboard</h3>
+            <h3>Admin Toko Baju</h3>
         </div>
         <ul class="sidebar-menu">
             <li><a href="index.php?section=overview"><i class="fas fa-tachometer-alt"></i> <span>Overview</span></a></li>
             <li class="active"><a href="index.php?section=products"><i class="fas fa-tshirt"></i> <span>Produk</span></a></li>
-            <li><a href="index.php?section=categories"><i class="fas fa-tags"></i> <span>Kategori</span></a></li>            
+            <li><a href="index.php?section=categories"><i class="fas fa-tags"></i> <span>Kategori</span></a></li>
+            <li><a href="index.php?section=delete-logs"><i class="fas fa-history"></i> <span>Log Hapus Produk</span></a></li>
+            <li><a href="index.php?section=product-view"><i class="fas fa-eye"></i> <span>Produk Lengkap (VIEW)</span></a></li>
+            <li><a href="index.php?section=product-procedure"><i class="fas fa-tasks"></i> <span>Produk via SP</span></a></li>
+            <li><a href="index.php?section=settings"><i class="fas fa-cogs"></i> <span>Pengaturan</span></a></li>
+            <li><a href="#" data-section="logout"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a></li>
         </ul>
     </div>
 
     <div class="main-content">
         <header class="navbar">
             <button class="sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
-            <h2>Tambah Produk</h2>
+            <h2>Produk</h2>
         </header>
 
         <div class="dashboard-sections">
             <section id="add-product-form" class="dashboard-section active">
-                <h3>Form Tambah Produk</h3>
-                <form action="" method="post" class="settings-form" enctype="multipart/form-data">
+                <h3>Tambah Produk Baru</h3>
+                <form action="" method="post" enctype="multipart/form-data" class="settings-form">
                     <div class="form-group">
                         <label for="nama_produk">Nama Produk:</label>
                         <input type="text" id="nama_produk" name="nama_produk" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="kategori_id">Kategori:</label>
+                        <select id="kategori_id" name="kategori_id" required>
+                            <?php echo $kategori_options_html; ?>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label for="harga">Harga:</label>
                         <input type="number" id="harga" name="harga" step="0.01" min="0" required>
                     </div>
                     <div class="form-group">
-                        <label for="kategori_id">Kategori:</label>
-                        <select id="kategori_id" name="kategori_id" required>
-                            <option value="">Pilih Kategori</option>
-                            <?php
-                                if ($kategori_options && mysqli_num_rows($kategori_options) > 0) {
-                                    while($row = mysqli_fetch_assoc($kategori_options)) {
-                                        echo "<option value='" . $row['id'] . "'>" . $row['kategori'] . "</option>";
-                                    }
-                                } else {
-                                    echo "<option value=''>Tidak ada kategori tersedia</option>";
-                                }
-                            ?>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="foto">Foto Produk (Nama File / URL):</label>
-                        <input type="text" id="foto" name="foto" placeholder="contoh: kemeja-batik.jpg">
+                        <label for="foto">Foto Produk:</label>
+                        <input type="file" id="foto" name="foto">
                     </div>
                     <div class="form-group">
                         <label for="detail">Detail Produk:</label>
@@ -84,24 +88,50 @@
 
                 <?php
                     if(isset($_POST["tambah"])) {
-                        // Pencegahan SQL Injection: Gunakan mysqli_real_escape_string()
-                        $nama_produk = mysqli_real_escape_string($koneksi, $_POST["nama_produk"]);
-                        $harga = mysqli_real_escape_string($koneksi, $_POST["harga"]);
-                        $kategori_id = mysqli_real_escape_string($koneksi, $_POST["kategori_id"]);
-                        $foto = mysqli_real_escape_string($koneksi, $_POST["foto"]);
-                        $detail = mysqli_real_escape_string($koneksi, $_POST["detail"]);
-                        $stok = mysqli_real_escape_string($koneksi, $_POST["stok_produk"]);
+                        // Pencegahan SQL Injection
+                        $nama_produk_input = mysqli_real_escape_string($koneksi, $_POST["nama_produk"]);
+                        $kategori_id_input = mysqli_real_escape_string($koneksi, $_POST["kategori_id"]); // Ambil kategori ID
+                        $harga_input = mysqli_real_escape_string($koneksi, $_POST["harga"]);
+                        $detail_input = mysqli_real_escape_string($koneksi, $_POST["detail"]);
+                        $stok_input = mysqli_real_escape_string($koneksi, $_POST["stok_produk"]);
 
-                        // Perbaikan: Ubah nama kolom 'nama_produk' menjadi 'nama' sesuai database toko_baju.sql
-                        // Tambahkan 'kategori_id' ke query INSERT
-                        $query = "INSERT INTO produk(nama, harga, kategori_id, foto, detail, stok_produk)
-                                VALUES ('$nama_produk', '$harga', '$kategori_id', '$foto', '$detail', '$stok')";
+                        // Penanganan upload foto
+                        $foto_nama_db = ''; // Default kosong jika tidak ada foto diunggah
+                        if (isset($_FILES['foto']) && $_FILES['foto']['error'] == 0) {
+                            $target_dir = "uploads/"; // Pastikan folder 'uploads' ada dan bisa ditulis (chmod 777 atau sesuai kebutuhan)
+                            if (!is_dir($target_dir)) {
+                                mkdir($target_dir, 0777, true); // Buat folder jika belum ada
+                            }
+                            $foto_nama_original = basename($_FILES["foto"]["name"]);
+                            $file_ext = strtolower(pathinfo($foto_nama_original, PATHINFO_EXTENSION));
+                            $allowed_ext = ['jpg', 'jpeg', 'png', 'gif'];
+
+                            // Validasi tipe file sederhana
+                            if (!in_array($file_ext, $allowed_ext)) {
+                                echo "<p style='color: red; margin-top: 15px;'>Hanya file JPG, JPEG, PNG, GIF yang diizinkan.</p>";
+                            } else {
+                                // Buat nama file unik untuk menghindari timpa file
+                                $foto_nama_db = uniqid('produk_') . '.' . $file_ext;
+                                $target_file = $target_dir . $foto_nama_db;
+
+                                if (move_uploaded_file($_FILES["foto"]["tmp_name"], $target_file)) {
+                                    // File berhasil diupload, nama file unik siap disimpan ke database
+                                } else {
+                                    echo "<p style='color: red; margin-top: 15px;'>Gagal mengunggah foto.</p>";
+                                    $foto_nama_db = ''; // Reset jika gagal upload
+                                }
+                            }
+                        }
+
+                        // PERBAIKAN PENTING: Gunakan nama kolom 'nama' dan 'kategori_id'
+                        $query = "INSERT INTO produk(nama, kategori_id, harga, foto, detail, stok_produk)
+                                VALUES ('$nama_produk_input', '$kategori_id_input', '$harga_input', '$foto_nama_db', '$detail_input', '$stok_input')";
 
                         if(mysqli_query($koneksi, $query)) {
                             echo "<p style='color: green; margin-top: 15px;'>Produk berhasil ditambahkan!</p>";
-                            // Redirect menggunakan JavaScript setelah 1.5 detik agar pesan terlihat
-                            echo "<script>setTimeout(function(){ window.location.href = 'index.php?section=products'; }, 1500);</script>";
-                            // Jangan gunakan header() dan exit() bersamaan dengan setTimeout
+                            // PERBAIKAN PENTING: Redirect ke index.php?section=products
+                            header("Location: index.php?section=products");
+                            exit(); // Penting untuk menghentikan eksekusi script
                         } else {
                             echo "<p style='color: red; margin-top: 15px;'>Gagal menambahkan data: " . mysqli_error($koneksi) . "</p>";
                         }
@@ -112,7 +142,6 @@
     </div>
     <script src="script.js"></script>
     <script>
-        // JS untuk sidebar (dari kode sebelumnya)
         document.addEventListener('DOMContentLoaded', function() {
             const sidebar = document.querySelector('.sidebar');
             if (window.innerWidth <= 768) {
@@ -126,5 +155,5 @@
 </body>
 </html>
 <?php
-    mysqli_close($koneksi); // Tutup koneksi database
+    mysqli_close($koneksi);
 ?>

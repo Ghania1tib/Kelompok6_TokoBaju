@@ -401,3 +401,40 @@ table tr:hover {
         grid-template-columns: 1fr; /* Tumpuk kartu secara vertikal */
     }
 }
+/* Anda sudah memiliki style.css yang baik. Hanya penambahan sedikit jika belum ada untuk search-form */
+.search-form {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    align-items: center;
+}
+.search-form input[type="text"] {
+    flex-grow: 1;
+    padding: 8px;
+    border: 1px solid var(--border-color); /* Menggunakan variabel CSS Anda */
+    border-radius: 4px;
+}
+.search-form button, .search-form a {
+    padding: 8px 15px;
+    border-radius: 4px;
+    text-decoration: none;
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.search-button {
+    background-color: #007bff; /* Warna biru untuk tombol cari */
+}
+.search-button:hover {
+    background-color: #0056b3;
+}
+.clear-search-button {
+    background-color: #dc3545; /* Warna merah untuk tombol bersihkan */
+}
+.clear-search-button:hover {
+    background-color: #c82333;
+}
+

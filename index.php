@@ -1,5 +1,5 @@
 <?php
-    // Asumsikan koneksiDB.php sudah ada dan berisi variabel $koneksi
+    // koneksiDB.php diasumsikan sudah ada dan benar
     include("koneksiDB.php");
 
     // Aktifkan pelaporan error untuk debugging (Hapus di produksi)
@@ -40,6 +40,49 @@
     <title>Dashboard Admin Toko Baju</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        /* CSS tambahan untuk tampilan lebih baik */
+        .search-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+        .search-form input[type="text"] {
+            flex-grow: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .search-form button, .search-form a {
+            padding: 8px 15px;
+            border-radius: 4px;
+            text-decoration: none;
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .search-button {
+            background-color: #007bff;
+        }
+        .search-button:hover {
+            background-color: #0056b3;
+        }
+        .clear-search-button {
+            background-color: #dc3545;
+        }
+        .clear-search-button:hover {
+            background-color: #c82333;
+        }
+
+        /* Untuk smooth scrolling saat klik link indeks */
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
 </head>
 <body>
     <div class="sidebar">
@@ -50,6 +93,11 @@
             <li><a href="index.php?section=overview" class="<?php echo ($currentSection == 'overview' ? 'active' : ''); ?>" data-section="overview"><i class="fas fa-tachometer-alt"></i> <span>Overview</span></a></li>
             <li><a href="index.php?section=products" class="<?php echo ($currentSection == 'products' ? 'active' : ''); ?>" data-section="products"><i class="fas fa-tshirt"></i> <span>Produk</span></a></li>
             <li><a href="index.php?section=categories" class="<?php echo ($currentSection == 'categories' ? 'active' : ''); ?>" data-section="categories"><i class="fas fa-tags"></i> <span>Kategori</span></a></li>
+            <li><a href="index.php?section=delete-logs" class="<?php echo ($currentSection == 'delete-logs' ? 'active' : ''); ?>" data-section="delete-logs"><i class="fas fa-history"></i> <span>Log Hapus Produk</span></a></li>
+            <li><a href="index.php?section=product-view" class="<?php echo ($currentSection == 'product-view' ? 'active' : ''); ?>" data-section="product-view"><i class="fas fa-eye"></i> <span>Produk Lengkap (VIEW)</span></a></li>
+            <li><a href="index.php?section=product-procedure" class="<?php echo ($currentSection == 'product-procedure' ? 'active' : ''); ?>" data-section="product-procedure"><i class="fas fa-tasks"></i> <span>Produk via SP</span></a></li>
+            <li><a href="index.php?section=settings" class="<?php echo ($currentSection == 'settings' ? 'active' : ''); ?>" data-section="settings"><i class="fas fa-cogs"></i> <span>Pengaturan</span></a></li>
+            <li><a href="#" data-section="logout"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a></li>
         </ul>
     </div>
 
@@ -57,6 +105,10 @@
         <header class="navbar">
             <button class="sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
             <h2>Selamat Datang, Admin!</h2>
+            <div class="user-info">
+                <span>Nama Admin</span>
+                <img src="https://via.placeholder.com/40" alt="User Avatar">
+            </div>
         </header>
 
         <div class="dashboard-sections">
@@ -90,6 +142,16 @@
                 <h3>Daftar Produk</h3>
                 <a href="tambahProduk.php" class="add-button"><i class="fas fa-plus"></i> Tambah Produk Baru</a>
                 <hr>
+
+                <form action="index.php" method="GET" class="search-form">
+                    <input type="hidden" name="section" value="products">
+                    <input type="text" name="keyword" placeholder="Cari nama produk..." value="<?php echo isset($_GET['keyword']) ? htmlspecialchars($_GET['keyword']) : ''; ?>">
+                    <button type="submit" class="search-button"><i class="fas fa-search"></i> Cari</button>
+                    <?php if (isset($_GET['keyword']) && $_GET['keyword'] != '') { ?>
+                        <a href="index.php?section=products" class="clear-search-button"><i class="fas fa-times"></i> Bersihkan</a>
+                    <?php } ?>
+                </form>
+                <hr>
                 <div class="table-container">
                     <table>
                         <thead>
@@ -106,27 +168,41 @@
                         <tbody>
                             <?php
                                 $no_produk = 1;
-                                // Perbaikan: Ambil kolom 'nama' bukan 'nama_produk' dari database
-                                $query_produk = mysqli_query($koneksi,"SELECT * FROM produk");
-                                if (mysqli_num_rows($query_produk) > 0) {
+                                $search_keyword = isset($_GET['keyword']) ? mysqli_real_escape_string($koneksi, $_GET['keyword']) : '';
+
+                                $query_produk_sql = "SELECT * FROM produk";
+                                if (!empty($search_keyword)) {
+                                    $query_produk_sql .= " WHERE nama LIKE '%" . $search_keyword . "%'"; // Menggunakan kolom 'nama' (dengan INDEX)
+                                }
+                                $query_produk_sql .= " ORDER BY nama ASC";
+
+                                $query_produk = mysqli_query($koneksi, $query_produk_sql);
+
+                                if ($query_produk && mysqli_num_rows($query_produk) > 0) {
                                     while ($data_produk = mysqli_fetch_array($query_produk)) {
                             ?>
                             <tr>
                                 <td><?php echo $no_produk++ ?></td>
-                                <td><?php echo $data_produk['nama'] ?></td>
+                                <td><?php echo htmlspecialchars($data_produk['nama']) ?></td>
                                 <td>Rp <?php echo number_format($data_produk['harga'], 0, ',', '.'); ?></td>
-                                <td><?php echo $data_produk['foto'] ?></td>
-                                <td><?php echo $data_produk['detail'] ?></td>
-                                <td><?php echo $data_produk['stok_produk'] ?></td>
+                                <td>
+                                    <?php if (!empty($data_produk['foto'])): ?>
+                                        <img src="uploads/<?php echo htmlspecialchars($data_produk['foto']); ?>" alt="Foto Produk" style="width: 50px; height: auto;">
+                                    <?php else: ?>
+                                        Tidak Ada Foto
+                                    <?php endif; ?>
+                                </td>
+                                <td><?php echo htmlspecialchars($data_produk['detail']) ?></td>
+                                <td><?php echo htmlspecialchars($data_produk['stok_produk']) ?></td>
                                 <td>
                                     <a href="editProduk.php?id=<?php echo $data_produk['id']?>" class="edit-button"><i class="fas fa-edit"></i> Edit</a>
-                                    <a href="hapusProduk.php?id=<?php echo $data_produk['id']?>" class="delete-button" onclick="return confirm('Yakin ingin menghapus?')"><i class="fas fa-trash"></i> Hapus</a>
+                                    <a href="hapus.php?id=<?php echo $data_produk['id']?>&type=produk" class="delete-button" onclick="return confirm('Yakin ingin menghapus produk ini? Log akan dicatat.')"><i class="fas fa-trash"></i> Hapus</a>
                                 </td>
                             </tr>
                             <?php
                                     }
                                 } else {
-                                    echo "<tr><td colspan='7'>Tidak ada data produk.</td></tr>";
+                                    echo "<tr><td colspan='7'>Tidak ada produk yang ditemukan.</td></tr>";
                                 }
                             ?>
                         </tbody>
@@ -150,16 +226,16 @@
                         <tbody>
                             <?php
                                 $no_kategori = 1;
-                                $query_kategori = mysqli_query($koneksi,"SELECT * FROM kategori");
+                                $query_kategori = mysqli_query($koneksi,"SELECT * FROM kategori ORDER BY kategori ASC");
                                 if (mysqli_num_rows($query_kategori) > 0) {
                                     while ($data_kategori = mysqli_fetch_array($query_kategori)) {
                             ?>
                             <tr>
                                 <td><?php echo $no_kategori++ ?></td>
-                                <td><?php echo $data_kategori['kategori'] ?></td>
+                                <td><?php echo htmlspecialchars($data_kategori['kategori']) ?></td>
                                 <td>
                                     <a href="edit.php?id=<?php echo $data_kategori['id']?>" class="edit-button"><i class="fas fa-edit"></i> Edit</a>
-                                    <a href="hapus.php?id=<?php echo $data_kategori['id']?>" class="delete-button" onclick="return confirm('Yakin ingin menghapus?')"><i class="fas fa-trash"></i> Hapus</a>
+                                    <a href="hapus.php?id=<?php echo $data_kategori['id']?>&type=kategori" class="delete-button" onclick="return confirm('Yakin ingin menghapus kategori ini? Pastikan tidak ada produk terkait!')"><i class="fas fa-trash"></i> Hapus</a>
                                 </td>
                             </tr>
                             <?php
@@ -173,78 +249,150 @@
                 </div>
             </section>
 
-            <section id="orders" class="dashboard-section <?php echo ($currentSection == 'orders' ? 'active' : ''); ?>">
-                <h3>Daftar Pesanan</h3>
+            <section id="delete-logs" class="dashboard-section <?php echo ($currentSection == 'delete-logs' ? 'active' : ''); ?>">
+                <h3>Log Penghapusan Produk (dari Trigger)</h3>
+                <p>Riwayat produk yang telah dihapus dari sistem, dicatat otomatis oleh trigger.</p>
+                <hr>
                 <div class="table-container">
                     <table>
                         <thead>
                             <tr>
-                                <th>ID Pesanan</th>
-                                <th>Pelanggan</th>
-                                <th>Total</th>
-                                <th>Status</th>
-                                <th>Tanggal</th>
-                                <th>Aksi</th>
+                                <th>No.</th>
+                                <th>ID Produk Dihapus</th>
+                                <th>Nama Produk Dihapus</th>
+                                <th>Tanggal Hapus</th>
                             </tr>
                         </thead>
                         <tbody>
+                            <?php
+                                $no_log = 1;
+                                // Mengambil data dari tabel log_produk_hapus, diurutkan dari yang terbaru
+                                $query_log = mysqli_query($koneksi, "SELECT * FROM log_produk_hapus ORDER BY tanggal_hapus DESC");
+
+                                // Memeriksa apakah ada data log
+                                if ($query_log && mysqli_num_rows($query_log) > 0) {
+                                    // Loop untuk menampilkan setiap baris data
+                                    while ($data_log = mysqli_fetch_array($query_log)) {
+                            ?>
                             <tr>
-                                <td>ORD001</td>
-                                <td>Budi Santoso</td>
-                                <td>Rp 200.000</td>
-                                <td><span class="status-pending">Pending</span></td>
-                                <td>2025-06-15</td>
+                                <td><?php echo $no_log++ ?></td>
+                                <td><?php echo htmlspecialchars($data_log['produk_id']) ?></td>
+                                <td><?php echo htmlspecialchars($data_log['nama_produk']) ?></td>
+                                <td><?php echo htmlspecialchars($data_log['tanggal_hapus']) ?></td>
+                            </tr>
+                            <?php
+                                    }
+                                } else {
+                                    // Tampilkan pesan jika tidak ada log
+                                    echo "<tr><td colspan='4'>Tidak ada log penghapusan produk yang tercatat.</td></tr>";
+                                }
+                            ?>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            <section id="product-view" class="dashboard-section <?php echo ($currentSection == 'product-view' ? 'active' : ''); ?>">
+                <h3>Produk Lengkap (dari VIEW)</h3>
+                <p>Daftar produk beserta nama kategori, diambil menggunakan VIEW database `view_produk_kategori`.</p>
+                <hr>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>No.</th>
+                                <th>Nama Produk</th>
+                                <th>Kategori</th>
+                                <th>Harga</th>
+                                <th>Stok</th>
+                                <th>Detail</th>
+                                <th>Foto</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                                $no_view = 1;
+                                // Menggunakan VIEW `view_produk_kategori`
+                                $query_view = mysqli_query($koneksi, "SELECT * FROM view_produk_kategori ORDER BY nama_produk ASC");
+                                if ($query_view && mysqli_num_rows($query_view) > 0) {
+                                    while ($data_view = mysqli_fetch_array($query_view)) {
+                            ?>
+                            <tr>
+                                <td><?php echo $no_view++ ?></td>
+                                <td><?php echo htmlspecialchars($data_view['nama_produk']) ?></td>
+                                <td><?php echo htmlspecialchars($data_view['nama_kategori']) ?></td>
+                                <td>Rp <?php echo number_format($data_view['harga'], 0, ',', '.'); ?></td>
+                                <td><?php echo htmlspecialchars($data_view['stok_produk']) ?></td>
+                                <td><?php echo htmlspecialchars($data_view['detail']) ?></td>
                                 <td>
-                                    <button class="view-button"><i class="fas fa-eye"></i> Lihat</button>
-                                    <button class="update-button"><i class="fas fa-sync-alt"></i> Update</button>
+                                    <?php if (!empty($data_view['foto'])): ?>
+                                        <img src="uploads/<?php echo htmlspecialchars($data_view['foto']); ?>" alt="Foto Produk" style="width: 50px; height: auto;">
+                                    <?php else: ?>
+                                        Tidak Ada Foto
+                                    <?php endif; ?>
                                 </td>
                             </tr>
-                            <tr>
-                                <td>ORD002</td>
-                                <td>Siti Aminah</td>
-                                <td>Rp 100.000</td>
-                                <td><span class="status-completed">Completed</span></td>
-                                <td>2025-06-14</td>
-                                <td>
-                                    <button class="view-button"><i class="fas fa-eye"></i> Lihat</button>
-                                    <button class="update-button"><i class="fas fa-sync-alt"></i> Update</button>
-                                </td>
-                            </tr>
-                            </tbody>
+                            <?php
+                                    }
+                                } else {
+                                    echo "<tr><td colspan='7'>Tidak ada data produk lengkap dari VIEW atau VIEW belum dibuat.</td></tr>";
+                                }
+                            ?>
+                        </tbody>
                     </table>
                 </div>
             </section>
 
-            <section id="customers" class="dashboard-section <?php echo ($currentSection == 'customers' ? 'active' : ''); ?>">
-                <h3>Manajemen Pelanggan</h3>
+            <section id="product-procedure" class="dashboard-section <?php echo ($currentSection == 'product-procedure' ? 'active' : ''); ?>">
+                <h3>Produk via Stored Procedure</h3>
+                <p>Bagian ini akan menampilkan daftar produk yang diambil melalui Stored Procedure `GetAllProducts()`.</p>
+                <hr>
                 <div class="table-container">
                     <table>
                         <thead>
                             <tr>
-                                <th>ID</th>
-                                <th>Nama Pelanggan</th>
-                                <th>Email</th>
-                                <th>No. Telepon</th>
-                                <th>Jumlah Pesanan</th>
-                                <th>Aksi</th>
+                                <th>No.</th>
+                                <th>ID Produk</th>
+                                <th>Nama Produk</th>
+                                <th>Harga</th>
+                                <th>Stok</th>
                             </tr>
                         </thead>
                         <tbody>
+                            <?php
+                                // Untuk mengimplementasikan ini, Anda perlu membuat Stored Procedure di database Anda:
+                                // Misalnya: CREATE PROCEDURE GetAllProducts() SELECT id, nama, harga, stok_produk FROM produk;
+                                $no_sp = 1;
+                                // Memanggil Stored Procedure (akan error jika SP belum dibuat)
+                                $query_sp = @mysqli_query($koneksi, "CALL GetAllProducts()"); // Menggunakan @ untuk menekan warning jika SP tidak ada
+                                if ($query_sp && mysqli_num_rows($query_sp) > 0) {
+                                    while ($data_sp = mysqli_fetch_array($query_sp)) {
+                            ?>
                             <tr>
-                                <td>CUST001</td>
-                                <td>Budi Santoso</td>
-                                <td>budi@email.com</td>
-                                <td>08123456789</td>
-                                <td>5</td>
-                                <td>
-                                    <button class="view-button"><i class="fas fa-eye"></i> Lihat</button>
-                                    <button class="delete-button"><i class="fas fa-trash"></i> Hapus</button>
-                                </td>
+                                <td><?php echo $no_sp++ ?></td>
+                                <td><?php echo htmlspecialchars($data_sp['id']) ?></td>
+                                <td><?php echo htmlspecialchars($data_sp['nama']) ?></td>
+                                <td>Rp <?php echo number_format($data_sp['harga'], 0, ',', '.'); ?></td>
+                                <td><?php echo htmlspecialchars($data_sp['stok_produk']) ?></td>
                             </tr>
-                            </tbody>
+                            <?php
+                                    }
+                                } else {
+                                    echo "<tr><td colspan='5'>Tidak ada data produk dari Stored Procedure atau SP belum dibuat/error.</td></tr>";
+                                }
+                                // Penting: Jika Anda memanggil Stored Procedure yang mengembalikan hasil,
+                                // Anda mungkin perlu menutup hasil sebelumnya sebelum query berikutnya.
+                                // Ini membersihkan setiap result set yang dikembalikan oleh Stored Procedure
+                                // agar tidak mengganggu query berikutnya.
+                                if (isset($query_sp) && is_object($query_sp)) {
+                                    mysqli_free_result($query_sp);
+                                }
+                                while (mysqli_more_results($koneksi) && mysqli_next_result($koneksi));
+                            ?>
+                        </tbody>
                     </table>
                 </div>
             </section>
+
 
             <section id="settings" class="dashboard-section <?php echo ($currentSection == 'settings' ? 'active' : ''); ?>">
                 <h3>Pengaturan</h3>
@@ -297,14 +445,24 @@
 
     <script src="script.js"></script>
     <script>
-        // JS untuk menjaga sidebar tetap collapsed (jika diinginkan) atau terbuka
         document.addEventListener('DOMContentLoaded', function() {
             const sidebar = document.querySelector('.sidebar');
             const sidebarToggle = document.getElementById('sidebarToggle');
 
+            // Tangani klik pada menu sidebar
+            document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    const section = this.dataset.section;
+                    if (section && section !== 'logout') { // Hindari mencegah default jika bukan logout
+                        e.preventDefault();
+                        window.location.href = `index.php?section=${section}`;
+                    }
+                });
+            });
+
+            // Atur status collapsed/open sidebar berdasarkan lebar layar
             if (window.innerWidth <= 768) {
                 sidebar.classList.add('collapsed');
-                // Atur ulang event listener untuk toggle jika ada
                 if (sidebarToggle) {
                     sidebarToggle.addEventListener('click', function() {
                         sidebar.classList.toggle('collapsed');
@@ -318,6 +476,5 @@
 </body>
 </html>
 <?php
-    // Tutup koneksi database setelah semua operasi selesai
-    mysqli_close($koneksi);
+    mysqli_close($koneksi); // Tutup koneksi database setelah semua operasi selesai
 ?>

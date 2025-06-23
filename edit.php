@@ -1,13 +1,16 @@
 <?php
     include("koneksiDB.php");
 
-    $id = $_GET["id"];
-    // Perbaikan: Tambahkan sanitasi input
-    $id = mysqli_real_escape_string($koneksi, $id);
+    $id = isset($_GET["id"]) ? mysqli_real_escape_string($koneksi, $_GET["id"]) : null;
+
+    if (!$id) {
+        header("Location: index.php?section=categories");
+        exit();
+    }
 
     $query = mysqli_query($koneksi,"SELECT * FROM kategori WHERE ID = '$id' ");
     $data = mysqli_fetch_array($query);
-    // Jika data tidak ditemukan, redirect atau tampilkan error
+
     if (!$data) {
         header("Location: index.php?section=categories");
         exit();
@@ -31,28 +34,35 @@
             <li><a href="index.php?section=overview"><i class="fas fa-tachometer-alt"></i> <span>Overview</span></a></li>
             <li><a href="index.php?section=products"><i class="fas fa-tshirt"></i> <span>Produk</span></a></li>
             <li class="active"><a href="index.php?section=categories"><i class="fas fa-tags"></i> <span>Kategori</span></a></li>
+            <li><a href="index.php?section=delete-logs"><i class="fas fa-history"></i> <span>Log Hapus Produk</span></a></li>
+            <li><a href="index.php?section=product-view"><i class="fas fa-eye"></i> <span>Produk Lengkap (VIEW)</span></a></li>
+            <li><a href="index.php?section=product-procedure"><i class="fas fa-tasks"></i> <span>Produk via SP</span></a></li>
+            <li><a href="index.php?section=settings"><i class="fas fa-cogs"></i> <span>Pengaturan</span></a></li>
+            <li><a href="#" data-section="logout"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a></li>
         </ul>
     </div>
 
     <div class="main-content">
         <header class="navbar">
             <button class="sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
-            <h2>Edit Kategori</h2>
+            <h2>Kategori</h2>
         </header>
 
         <div class="dashboard-sections">
             <section id="edit-category-form" class="dashboard-section active">
-                <h3>Update Kategori</h3>
+                <h3>Edit Kategori: <?php echo htmlspecialchars($data['kategori']); ?></h3>
                 <form action="" method="post" class="settings-form">
                     <div class="form-group">
-                        <label for="kategori_nama">Nama Kategori:</label>
+                        <label for="kategori_nama">Kategori:</label>
                         <input type="text" id="kategori_nama" name="kategori_nama" value="<?php echo htmlspecialchars($data['kategori'])?>" required>
                     </div>
-                    <button type="submit" name="update" class="save-button"><i class="fas fa-save"></i> Update Data</button>
+
+                    <button type="submit" name="update_kategori" class="save-button"><i class="fas fa-save"></i> Update Data</button>
                     <a href="index.php?section=categories" class="view-button"><i class="fas fa-arrow-left"></i> Kembali</a>
                 </form>
+
                 <?php
-                    if (isset($_POST['update'])) {
+                    if (isset($_POST['update_kategori'])) {
                         // Perbaikan: Ambil dari input yang benar
                         $kategori_baru = mysqli_real_escape_string($koneksi, $_POST['kategori_nama']);
 
